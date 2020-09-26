@@ -82,13 +82,8 @@ class LoveAppeal:
     def get(self, up):
         self.love_power += up
         love_max = len(self.love_appeal_count)
-        while (
-            self.love_power
-            >= self.love_appeal_count[min(self.love_level, love_max) - 1]
-        ):
-            self.love_power -= self.love_appeal_count[
-                min(self.love_level, love_max) - 1
-            ]
+        while self.love_power >= self.love_appeal_count[min(self.love_level, love_max) - 1]:
+            self.love_power -= self.love_appeal_count[min(self.love_level, love_max) - 1]
             self.love_level += 1
 
 
@@ -187,14 +182,7 @@ class EnemyManager:
             level = choice(range(self.max_level), 1)[0]
         else:
             level = self.current_level - 1
-        return Enemy(
-            self.hps[level],
-            self.exps[level],
-            self,
-            self.bp,
-            self.special,
-            self.enemy_type,
-        )
+        return Enemy(self.hps[level], self.exps[level], self, self.bp, self.special, self.enemy_type,)
 
     def win(self):
         if not self.random:
@@ -331,14 +319,7 @@ class DropRate:
 
 class Stage:
     def __init__(
-        self,
-        stamina,
-        bp,
-        special,
-        enemy_manager1,
-        enemy_manager3,
-        date_manager,
-        item_manager,
+        self, stamina, bp, special, enemy_manager1, enemy_manager3, date_manager, item_manager,
     ):
         self.enemy = None
         self.stamina = stamina
@@ -354,9 +335,7 @@ class Stage:
 
         def enemy():
             if self.enemy is None:
-                self.enemy = choice(
-                    [self.enemy_manager1, self.enemy_manager3], 1, [0.75, 0.25]
-                )[0].get()
+                self.enemy = choice([self.enemy_manager1, self.enemy_manager3], 1, [0.75, 0.25])[0].get()
 
         def recover():
             self.bp.recover(choice([1, 2, 3], 1, [0.70, 0.20, 0.10])[0])
@@ -391,81 +370,27 @@ class Simulator:
         self.bp = bp
         self.special = special
 
-        self.enemy1 = EnemyManager(
-            ATTACK1_HP,
-            ATTACK1_EXP,
-            self.bp,
-            self.special,
-            EnemyType.ENEMY1,
-            random=False,
-        )
-        self.enemy3 = EnemyManager(
-            ATTACK3_HP,
-            ATTACK3_EXP,
-            self.bp,
-            self.special,
-            EnemyType.ENEMY3,
-            random=False,
-        )
-        self.enemy5 = EnemyManager(
-            ATTACK5_HP,
-            ATTACK5_EXP,
-            self.bp,
-            self.special,
-            EnemyType.ENEMY5,
-            random=True,
-        )
-        self.enemy7 = EnemyManager(
-            ATTACKSP_HP,
-            ATTACKSP_EXP,
-            self.bp,
-            self.special,
-            EnemyType.ENEMY7,
-            random=False,
-        )
+        self.enemy1 = EnemyManager(ATTACK1_HP, ATTACK1_EXP, self.bp, self.special, EnemyType.ENEMY1, random=False,)
+        self.enemy3 = EnemyManager(ATTACK3_HP, ATTACK3_EXP, self.bp, self.special, EnemyType.ENEMY3, random=False,)
+        self.enemy5 = EnemyManager(ATTACK5_HP, ATTACK5_EXP, self.bp, self.special, EnemyType.ENEMY5, random=True,)
+        self.enemy7 = EnemyManager(ATTACKSP_HP, ATTACKSP_EXP, self.bp, self.special, EnemyType.ENEMY7, random=False,)
 
         self.love_appeal = LoveAppeal(LOVE_APPEAL_COUNT)
 
-        self.dropup = ItemManager(
-            BOOSTUP_COUNT_DROP, BOOSTUP_RATE_DROP, self.love_appeal, 1
-        )
-        self.pointup = ItemManager(
-            BOOSTUP_COUNT_POINT, BOOSTUP_RATE_POINT, self.love_appeal, 2
-        )
-        self.appealup = ItemManager(
-            BOOSTUP_COUNT_APPEAL, BOOSTUP_RATE_APPEAL, self.love_appeal, 3
-        )
-        self.dateup = ItemManager(
-            BOOSTUP_COUNT_DATE, BOOSTUP_RATE_DATE, self.love_appeal, 5
-        )
+        self.dropup = ItemManager(BOOSTUP_COUNT_DROP, BOOSTUP_RATE_DROP, self.love_appeal, 1)
+        self.pointup = ItemManager(BOOSTUP_COUNT_POINT, BOOSTUP_RATE_POINT, self.love_appeal, 2)
+        self.appealup = ItemManager(BOOSTUP_COUNT_APPEAL, BOOSTUP_RATE_APPEAL, self.love_appeal, 3)
+        self.dateup = ItemManager(BOOSTUP_COUNT_DATE, BOOSTUP_RATE_DATE, self.love_appeal, 5)
 
         self.date_manager = DateManager(self.enemy5, self.enemy7, self.dateup)
         self.stage1 = Stage(
-            self.stamina,
-            self.bp,
-            self.special,
-            self.enemy1,
-            self.enemy3,
-            self.date_manager,
-            self.dropup,
+            self.stamina, self.bp, self.special, self.enemy1, self.enemy3, self.date_manager, self.dropup,
         )
         self.stage2 = Stage(
-            self.stamina,
-            self.bp,
-            self.special,
-            self.enemy1,
-            self.enemy3,
-            self.date_manager,
-            self.pointup,
+            self.stamina, self.bp, self.special, self.enemy1, self.enemy3, self.date_manager, self.pointup,
         )
         self.stage3 = Stage(
-            self.stamina,
-            self.bp,
-            self.special,
-            self.enemy1,
-            self.enemy3,
-            self.date_manager,
-            self.appealup,
+            self.stamina, self.bp, self.special, self.enemy1, self.enemy3, self.date_manager, self.appealup,
         )
 
         self.drop_rate = DropRate([3, 2, 1])
@@ -473,16 +398,11 @@ class Simulator:
     def simulate_score(self, card_appeal=0.0, card_point=0.0):
         total_point = 0
         appeal = BoostManager(self.appeal, [self.appealup, ConstBoost(card_appeal)])
-        point = BoostManager(
-            1.0, [self.pointup, ConstBoost(card_point)]
-        )  # FIXME: これはナンセンスでは？
+        point = BoostManager(1.0, [self.pointup, ConstBoost(card_point)])  # FIXME: これはナンセンスでは？
 
         while not (
             self.stamina.is_end(RUN_STAMINA)
-            and (
-                (self.bp.is_end() and self.special.is_end())
-                or self.date_manager.is_end()
-            )
+            and ((self.bp.is_end() and self.special.is_end()) or self.date_manager.is_end())
         ):
 
             if not self.stamina.is_end(RUN_STAMINA):
@@ -505,14 +425,9 @@ class Simulator:
                 if stage is None:
                     stage = stages[-1]
 
-                p = stage.run(
-                    appeal, point, self.drop_rate.get(0.3 * self.dropup.boost())
-                )
+                p = stage.run(appeal, point, self.drop_rate.get(0.3 * self.dropup.boost()))
                 total_point += p
-            elif (
-                not (self.bp.is_end() and self.special.is_end())
-                and not self.date_manager.is_end()
-            ):
+            elif not (self.bp.is_end() and self.special.is_end()) and not self.date_manager.is_end():
                 p = self.date_manager.attack(
                     self.drop_rate.get(0.3 * self.dropup.boost()),
                     appeal,
